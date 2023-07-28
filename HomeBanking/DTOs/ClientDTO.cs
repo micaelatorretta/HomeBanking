@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace HomeBanking.Models
+namespace HomeBanking.DTOs
 {
-    public class Client
+    public class ClientDTO
     {
+        [JsonIgnore]
+
         public long Id { get; set; }
 
         public string FirstName { get; set; }
@@ -12,9 +15,6 @@ namespace HomeBanking.Models
 
         public string Email { get; set; }
 
-        public string Password { get; set; }
-
-        public ICollection<Account> Accounts { get; set; }
-
+        public ICollection<AccountDTO> Accounts { get; set; }
     }
 }
