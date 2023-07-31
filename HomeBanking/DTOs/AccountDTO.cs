@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HomeBanking.DTOs
 {
@@ -11,5 +12,7 @@ namespace HomeBanking.DTOs
         public DateTime CreationDate { get; set; }
 
         public double Balance { get; set; }
+
+        public ICollection<TransactionDTO> Transactions { get; set; }
     }
 }

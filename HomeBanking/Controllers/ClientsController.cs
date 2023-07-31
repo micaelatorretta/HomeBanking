@@ -116,7 +116,7 @@ namespace HomeBanking.Controllers
             try
 
             {
-
+                
                 var client = _clientRepository.FindById(id);
 
                 if (client == null)

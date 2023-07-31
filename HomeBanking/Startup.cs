@@ -30,6 +30,8 @@ namespace HomeBanking
             services.AddDbContext<HomeBankingContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("HomeBankingConexion")));
 
             services.AddScoped<IClientRepository, ClientRepository>();
+
+            services.AddScoped<IAccountRepository, AccountRepository>();
         }
 
         

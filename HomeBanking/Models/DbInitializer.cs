@@ -6,6 +6,7 @@ namespace HomeBanking.Models
 {
     public class DbInitializer
     {
+        
         public static void Initialize(HomeBankingContext context)
         {
             #region Clients
@@ -36,7 +37,7 @@ namespace HomeBanking.Models
 
                 foreach (Client client in clients)
                 {
-                    int cantidadDeCuentas = GenerarCantidadDeCuentasAleatoria(); // Generar cantidad aleatoria entre 1 y 3
+                    int cantidadDeCuentas = GenerarCantidadAleatoria(); // Generar cantidad aleatoria entre 1 y 3
 
                     for (int i = 0; i < cantidadDeCuentas; i++)
                     {
@@ -61,11 +62,39 @@ namespace HomeBanking.Models
             }
             #endregion
 
+            #region Transaction
+            if (!context.Transactions.Any())
+            {
+                var accounts = context.Accounts.ToList();
+                var transactions = new List<Transaction>();
+
+                foreach (Account account in accounts)
+                {
+                    int cantidadDeCuentas = GenerarCantidadAleatoria(); // Generar cantidad aleatoria entre 1 y 3
+
+                    for (int i = 0; i < cantidadDeCuentas; i++) 
+                    {
+                        var tn = new Transaction
+                        {
+                            AccountId = account.Id,
+                            Account = account,
+                            Amount = random.Next(-1000, 5000),
+                            Date = DateTime.Now.AddHours(-random.Next(1, 24)),
+                            Description = GetRandomDescription(),
+                            Type = (random.Next(2) == 0) ? TransactionType.CREDIT.ToString() : TransactionType.DEBIT.ToString()
+                        };
+                        context.Transactions.Add(tn);
+                    }
+                }
+
+                context.Transactions.AddRange(transactions);
+            }
+            #endregion
             context.SaveChanges();
         }
 
    
-        private static int GenerarCantidadDeCuentasAleatoria()
+        private static int GenerarCantidadAleatoria()
         {
             Random random = new Random();
             return random.Next(1, 4); 
@@ -76,6 +105,26 @@ namespace HomeBanking.Models
         {
             Random random = new Random();
             return random.Next(1000, 50001);
+        }
+
+        private static readonly Random random = new Random();
+
+        private static string[] descriptions = {
+        "Compra en tienda A",
+        "Pago de servicios",
+        "Transferencia recibida",
+        "Retiro de efectivo",
+        "Compra en línea",
+        "Gasto en restaurant",
+        "Depósito de cheque",
+        "Gasto en gasolina",
+        "Pago de factura",
+        "Transferencia enviada"
+        };
+        private static string GetRandomDescription()
+        {
+            int index = random.Next(descriptions.Length);
+            return descriptions[index];
         }
     }
 }
