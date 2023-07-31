@@ -1,5 +1,6 @@
 ﻿using HomeBanking.Models;
 using HomeBanking.Repositories.Interfaces;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace HomeBanking.Repositories
         {
             return FindByCondition(client => client.Id == id)
                 .Include(client => client.Accounts)
+                .Include(client => client.ClientLoans)
+                .ThenInclude(cl => cl.Loan)
                 .FirstOrDefault();
         }
 
@@ -23,6 +26,8 @@ namespace HomeBanking.Repositories
         {
             return FindAll()
                 .Include(client => client.Accounts)
+                .Include(client => client.ClientLoans)
+                .ThenInclude(cl => cl.Loan)
                 .ToList();
         }
 

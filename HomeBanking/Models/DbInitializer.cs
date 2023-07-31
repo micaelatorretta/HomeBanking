@@ -26,6 +26,7 @@ namespace HomeBanking.Models
                 {
                     context.Clients.Add(client);
                 }
+                context.SaveChanges();
             }
             #endregion
 
@@ -59,6 +60,7 @@ namespace HomeBanking.Models
                         cuentaIndex++;
                     }
                 }
+                context.SaveChanges();
             }
             #endregion
 
@@ -88,9 +90,81 @@ namespace HomeBanking.Models
                 }
 
                 context.Transactions.AddRange(transactions);
+                context.SaveChanges();
             }
             #endregion
-            context.SaveChanges();
+            #region Loans
+            if (!context.Loans.Any())
+            {
+                // Crear préstamos utilizando el enum LoanType
+                var loans = new Loan[]
+                {
+                new Loan { Name = LoanType.HIPOTECARIO.ToString(), MaxAmount = 500000, Payments = "12,24,36,48,60" },
+                new Loan { Name = LoanType.PERSONAL.ToString(), MaxAmount = 100000, Payments = "6,12,24" },
+                new Loan { Name = LoanType.AUTOMOTRIZ.ToString(), MaxAmount = 300000, Payments = "6,12,24,36" },
+                };
+
+                // Agregar los préstamos a la base de datos
+                context.Loans.AddRange(loans);
+                context.SaveChanges();
+            }
+
+            if(!context.ClientLoans.Any()) { 
+                // Obtener los préstamos creados
+                var hipotecarioLoan = context.Loans.FirstOrDefault(l => l.Name == LoanType.HIPOTECARIO.ToString());
+                var personalLoan = context.Loans.FirstOrDefault(l => l.Name == LoanType.PERSONAL.ToString());
+                var automotrizLoan = context.Loans.FirstOrDefault(l => l.Name == LoanType.AUTOMOTRIZ.ToString());
+
+                // Buscar todos los clientes (o filtrar según tus necesidades)
+                var clients = context.Clients.ToList();
+
+                var random = new Random();
+
+                foreach (var client in clients)
+                {
+                    // Seleccionar un préstamo aleatorio para el cliente actual
+                    var randomLoan = random.Next(3); // Genera un número aleatorio entre 0 y 2
+
+                    ClientLoan clientLoan = null;
+                    switch (randomLoan)
+                    {
+                        case 0:
+                            clientLoan = new ClientLoan
+                            {
+                                Amount = random.Next(50000, 100001), // Monto aleatorio entre 50000 y 100000
+                                ClientId = client.Id,
+                                LoanId = hipotecarioLoan.Id,
+                                Payments = "60"
+                            };
+                            break;
+                        case 1:
+                            clientLoan = new ClientLoan
+                            {
+                                Amount = random.Next(10000, 50001), // Monto aleatorio entre 10000 y 50000
+                                ClientId = client.Id,
+                                LoanId = personalLoan.Id,
+                                Payments = "12"
+                            };
+                            break;
+                        case 2:
+                            clientLoan = new ClientLoan
+                            {
+                                Amount = random.Next(20000, 80001), // Monto aleatorio entre 20000 y 80000
+                                ClientId = client.Id,
+                                LoanId = automotrizLoan.Id,
+                                Payments = "24"
+                            };
+                            break;
+                    }
+
+                    // Agregar el préstamo aleatorio al cliente
+                    context.ClientLoans.Add(clientLoan);
+                    context.SaveChanges();
+                }
+                
+            }
+                #endregion
+                
         }
 
    
