@@ -5,8 +5,7 @@ namespace HomeBanking.DTOs
 {
     public class ClientDTO
     {
-        [JsonIgnore]
-
+      //  [JsonIgnore] //Se comento este atributo porque se usa el Id del cliente para obtener sus tarjetas.
         public long Id { get; set; }
 
         public string FirstName { get; set; }
@@ -16,6 +15,7 @@ namespace HomeBanking.DTOs
         public string Email { get; set; }
 
         public ICollection<AccountDTO> Accounts { get; set; }
-        public ICollection<ClientLoanDTO> Loans { get; set; }
+        public ICollection<ClientLoanDTO> Credits { get; set; }
+        public ICollection<CardDTO> Cards { get; set; }
     }
 }

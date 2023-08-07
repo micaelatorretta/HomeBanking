@@ -5,8 +5,10 @@ var app = new Vue({
         error: null
     },
     methods:{
-        getData: function(){
-            axios.get("/api/clients/1")
+        getData: function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            axios.get(`/api/clients/${id}`)
             .then(function (response) {
                 //get client ifo
                 app.clientInfo = response.data;

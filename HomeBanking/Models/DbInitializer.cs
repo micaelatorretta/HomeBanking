@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using HomeBanking.Models.Enums;
 
 namespace HomeBanking.Models
 {
@@ -163,11 +165,54 @@ namespace HomeBanking.Models
                 }
                 
             }
-                #endregion
-                
+            #endregion
+
+            #region Cards
+            if (!context.Cards.Any())
+            {
+                var clients = context.Clients.ToList();
+
+                foreach (var client in clients)
+                {
+                    if (client.Cards == null)
+                    {
+                        client.Cards = new List<Card>();
+
+                        int countCard = GenerarCantidadAleatoria(); // Generar cantidad aleatoria de tarjetas entre 1 y 3
+
+                        for (int i = 0; i < countCard; i++)
+                        {
+                            // Crear variables con los detalles de la tarjeta
+                            var cardDetails = new Card
+                            {
+                                ClientId = client.Id,
+                                CardHolder = $"{client.FirstName} {client.LastName}",
+                                Type = (i % 3 == 0) ? CardType.DEBIT.ToString() : CardType.CREDIT.ToString(), // Alternar entre tipos de tarjeta Debit y Credit
+                                Color = (i % 3 == 0) ? CardColor.GOLD.ToString() : (i % 3 == 1) ? CardColor.SILVER.ToString() : CardColor.TITANIUM.ToString(), // Alternar entre colores Gold, Titanium y Platinum
+                                Number = GenerarNumeroTarjeta(), // Debes generar o recuperar aquí el número de tarjeta real
+                                Cvv = 100 + i, // CVV falso solo para fines de demostración
+                                FromDate = DateTime.UtcNow,
+                                ThruDate = DateTime.UtcNow.AddYears(4),
+                            };
+
+                            //// Crear una nueva tarjeta y agregarla al cliente
+                            //client.Cards.Add(cardDetails);
+
+                            // Agregar la tarjeta al contexto
+                            context.Cards.Add(cardDetails);
+                        }
+                    }
+                }
+
+                // Guardar los cambios después de agregar las tarjetas para todos los clientes
+                context.SaveChanges();
+            }
+
+            #endregion
+
         }
 
-   
+
         private static int GenerarCantidadAleatoria()
         {
             Random random = new Random();
@@ -199,6 +244,25 @@ namespace HomeBanking.Models
         {
             int index = random.Next(descriptions.Length);
             return descriptions[index];
+        }
+
+        private static string GenerarNumeroTarjeta()
+        {
+            var random = new Random();
+            var cardNumber = new StringBuilder();
+
+            for (int i = 0; i < 16; i++)
+            {
+                int digit = random.Next(0, 10);
+                cardNumber.Append(digit);
+
+                if ((i + 1) % 4 == 0 && i < 15)
+                {
+                    cardNumber.Append("-");
+                }
+            }
+
+            return cardNumber.ToString();
         }
     }
 }
