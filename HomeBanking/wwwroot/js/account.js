@@ -12,7 +12,6 @@ var app = new Vue({
             .then(function (response) {
                 //get client ifo
                 app.accountInfo = response.data;
-                console.log(response);
                 app.accountInfo.transactions.$values.sort((a,b) => parseInt(b.id - a.id))
             })
             .catch(function (error) {
