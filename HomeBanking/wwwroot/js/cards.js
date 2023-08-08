@@ -8,9 +8,8 @@
     },
     methods: {
         getData: function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            axios.get(`/api/clients/${id}`)
+            //axios.get("/api/clients/1")
+            axios.get("/api/clients/current")
                 .then(function (response) {
                     //get client ifo
                     app.clientInfo = response.data;
