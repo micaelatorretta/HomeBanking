@@ -11,6 +11,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using System;
+using HomeBanking.Controllers;
 
 namespace HomeBanking
 {
@@ -40,6 +41,12 @@ namespace HomeBanking
 
             // Agrega un servicio de repositorio para operaciones relacionadas con cuentas
             services.AddScoped<IAccountRepository, AccountRepository>();
+            // Agrega un servicio de repositorio para operaciones relacionadas con TARJETAS
+            services.AddScoped<ICardRepository, CardRepository>();
+
+            services.AddScoped<AccountsController>();
+            services.AddScoped<CardsController>();
+
 
             // Configura la autenticación usando cookies
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

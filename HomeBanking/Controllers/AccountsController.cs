@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Security.Principal;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HomeBanking.Controllers
 {
@@ -22,7 +24,6 @@ namespace HomeBanking.Controllers
         {
 
             _accountRepository = accountRepository;
-
         }
 
 
@@ -61,7 +62,7 @@ namespace HomeBanking.Controllers
 
                         Balance = account.Balance,
 
-                       Transactions = account.Transactions.Select(tr => new TransactionDTO
+                        Transactions = account.Transactions.Select(tr => new TransactionDTO
 
                         {
 
@@ -171,6 +172,36 @@ namespace HomeBanking.Controllers
 
             }
 
+        }
+        
+        [HttpPost]
+        public IActionResult Post(long clientId)
+        {
+            try
+            {
+                string accountNumber= _accountRepository.GenerateNextAccountNumber();
+                Account newAccount = new Account
+                {
+                    ClientId = clientId,
+                    CreationDate = DateTime.Now,
+                    Balance = 0,
+                    Number = accountNumber
+
+                };
+                _accountRepository.Save(newAccount);
+                AccountDTO newAccDTO = new AccountDTO
+                {
+                    Id = newAccount.Id,
+                    Balance = newAccount.Balance,
+                    CreationDate = newAccount.CreationDate,
+                    Number = newAccount.Number
+                };
+                return Created ("", newAccDTO);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
