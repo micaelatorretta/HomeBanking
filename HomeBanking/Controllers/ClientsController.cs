@@ -24,12 +24,14 @@ namespace HomeBanking.Controllers
         // private IAccountRepository _accountRepository;
         private AccountsController _accountsController;
         private CardsController _cardsController;
-        public ClientsController(IClientRepository clientRepository, AccountsController accountsController, CardsController cardsController)
+        private IAccountRepository _accountRepository;
+        public ClientsController(IClientRepository clientRepository, AccountsController accountsController, CardsController cardsController, IAccountRepository accountRepository)
 
         {
             _clientRepository = clientRepository;
             _accountsController = accountsController;
             _cardsController = cardsController;
+            _accountRepository = accountRepository;
         }
 
 
@@ -446,6 +448,37 @@ namespace HomeBanking.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        [HttpGet("current/accounts")]
+        public IActionResult GetAccounts()
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+
+                if (email == string.Empty)
+                {
+                    return Unauthorized("Acceso no autorizado");
+                }
+
+                Client client = _clientRepository.FindByEmail(email);
+
+                if (client == null)
+                {
+                    return Unauthorized("Acceso no autorizado");
+                }
+
+                // Obtén las cuentas asociadas al cliente desde el repositorio de cuentas.
+                var accounts = _accountRepository.GetAccountsByClient(client.Id);
+
+                return Ok(accounts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+
         }
 
     }
