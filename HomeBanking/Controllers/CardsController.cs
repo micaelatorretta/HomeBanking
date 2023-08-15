@@ -1,4 +1,5 @@
-﻿using HomeBanking.DTOs;
+﻿using AutoMapper;
+using HomeBanking.DTOs;
 using HomeBanking.Models;
 using HomeBanking.Repositories;
 using HomeBanking.Repositories.Interfaces;
@@ -12,11 +13,13 @@ namespace HomeBanking.Controllers
     [ApiController]
     public class CardsController : ControllerBase
     {
-        private ICardRepository _cardRepository;
+        private ICardRepository _cardRepository; 
+        private readonly IMapper _mapper;
 
-        public CardsController (ICardRepository cardRepository)
+        public CardsController (ICardRepository cardRepository, IMapper mapper)
         {
             _cardRepository = cardRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -25,26 +28,7 @@ namespace HomeBanking.Controllers
             try
             {
                 var cards = _cardRepository.GetAllCards();
-                var cardsDTO = new List<CardDTO>();
-
-                foreach (Card card in cards)
-                {
-                    var newCardDTO = new CardDTO
-                    {
-                        Id = card.Id,
-                        CardHolder = card.CardHolder,
-                        Type = card.Type,
-                        Color = card.Color,
-                        Number = card.Number,
-                        Cvv = card.Cvv,
-                        FromDate = card.FromDate,
-                        ThruDate = card.ThruDate,
-                    };
-
-                    cardsDTO.Add(newCardDTO);
-                    
-
-                }
+                var cardsDTO = _mapper.Map<List<ClientDTO>>(cards); 
 
                 return Ok(cardsDTO);
             }
@@ -70,18 +54,7 @@ namespace HomeBanking.Controllers
                     return NotFound(); //404
 
                 }
-
-                var newCardDTO = new CardDTO
-                {
-                    Id = card.Id,
-                    CardHolder = card.CardHolder,
-                    Type = card.Type,
-                    Color = card.Color,
-                    Number = card.Number,
-                    Cvv = card.Cvv,
-                    FromDate = card.FromDate,
-                    ThruDate = card.ThruDate,
-                };
+                var newCardDTO = _mapper.Map<CardDTO>(card);
 
                 return Ok(newCardDTO);
 
@@ -93,25 +66,19 @@ namespace HomeBanking.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Card newCard)
+        public IActionResult Post(CardDTO cardDTO)
         {
             try
             {
                 string cardNumber = _cardRepository.GenerateNextCardNumber();
-                newCard.Number = cardNumber;
+                cardDTO.Number = cardNumber;
+
+                var newCard = _mapper.Map<Card>(cardDTO);
 
                 _cardRepository.Save(newCard);
-                CardDTO newCardDTO = new CardDTO
-                {
-                    Id = newCard.Id,
-                    CardHolder = newCard.CardHolder,
-                    Type = newCard.Type,
-                    Color = newCard.Color,
-                    Number = newCard.Number,
-                    Cvv = newCard.Cvv,
-                    FromDate = newCard.FromDate,
-                    ThruDate = newCard.ThruDate,
-                };
+
+                var newCardDTO = _mapper.Map<CardDTO>(newCard);
+
                 return Created("", newCardDTO);
             }
             catch

@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System;
+using HomeBanking.DTOs;
+using AutoMapper;
 
 namespace HomeBanking.Controllers
 {
@@ -16,18 +18,22 @@ namespace HomeBanking.Controllers
     public class AuthController : ControllerBase
     {
         private IClientRepository _clientRepository;
+        private readonly IMapper _mapper;
 
-        public AuthController(IClientRepository clientRepository)
+        public AuthController(IClientRepository clientRepository, IMapper mapper)
         {
             _clientRepository = clientRepository;
+            _mapper = mapper;
         }
 
         // Maneja la acción de inicio de sesión
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] Client client)
+        public async Task<IActionResult> Login([FromBody] ClientDTO clientDTO)
         {
             try
             {
+                var client=_mapper.Map<ClientDTO>(clientDTO);
+
                 // Busca al usuario en la base de datos por su correo electrónico
                 Client user = _clientRepository.FindByEmail(client.Email);
                 if (user == null || !String.Equals(user.Password, client.Password))

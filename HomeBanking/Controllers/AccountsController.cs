@@ -1,13 +1,10 @@
 ﻿using HomeBanking.DTOs;
 using HomeBanking.Models;
 using HomeBanking.Repositories.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
-using System.Linq;
-using System.Security.Principal;
-using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 
 namespace HomeBanking.Controllers
 {
@@ -16,14 +13,16 @@ namespace HomeBanking.Controllers
     public class AccountsController : ControllerBase
     {
         private IAccountRepository _accountRepository;
+        private readonly IMapper _mapper;
 
 
 
-        public AccountsController(IAccountRepository accountRepository)
+        public AccountsController(IAccountRepository accountRepository, IMapper mapper)
 
         {
 
             _accountRepository = accountRepository;
+            _mapper = mapper;
         }
 
 
@@ -40,55 +39,7 @@ namespace HomeBanking.Controllers
 
                 var accounts = _accountRepository.GetAllAccounts();
 
-
-
-                var accountsDTO = new List<AccountDTO>();
-
-
-
-                foreach (Account account in accounts)
-
-                {
-
-                    var newAccountDTO = new AccountDTO
-
-                    {
-
-                        Id = account.Id,
-
-                        Number = account.Number,
-
-                        CreationDate = account.CreationDate,
-
-                        Balance = account.Balance,
-
-                        Transactions = account.Transactions.Select(tr => new TransactionDTO
-
-                        {
-
-                            Id = tr.Id,
-
-                            Type = tr.Type,
-
-                            Amount = tr.Amount,
-
-                            Description = tr.Description,
-
-                            Date = tr.Date,
-
-                        }).ToList()
-
-                    };
-
-
-
-                    accountsDTO.Add(newAccountDTO);
-
-                }
-
-
-
-
+                var accountsDTO = _mapper.Map<List<AccountDTO>>(accounts);
 
                 return Ok(accountsDTO);
 
@@ -128,37 +79,7 @@ namespace HomeBanking.Controllers
 
 
 
-                var accountDTO = new AccountDTO
-
-                {
-
-                    Id = account.Id,
-
-                    Number = account.Number,
-
-                    CreationDate = account.CreationDate,
-
-                    Balance = account.Balance,
-
-                    Transactions = account.Transactions.Select(tr => new TransactionDTO
-
-                    {
-
-                        Id = tr.Id,
-
-                        Type = tr.Type,
-
-                        Amount = tr.Amount,
-
-                        Description = tr.Description,
-
-                        Date = tr.Date,
-
-                    }).ToList()
-
-                };
-
-
+                var accountDTO = _mapper.Map<AccountDTO>(account);
 
                 return Ok(accountDTO);
 
@@ -189,13 +110,9 @@ namespace HomeBanking.Controllers
 
                 };
                 _accountRepository.Save(newAccount);
-                AccountDTO newAccDTO = new AccountDTO
-                {
-                    Id = newAccount.Id,
-                    Balance = newAccount.Balance,
-                    CreationDate = newAccount.CreationDate,
-                    Number = newAccount.Number
-                };
+
+                AccountDTO newAccDTO=_mapper.Map<AccountDTO>(newAccount);
+
                 return Created ("", newAccDTO);
             }
             catch

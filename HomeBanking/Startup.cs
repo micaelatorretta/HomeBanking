@@ -30,6 +30,9 @@ namespace HomeBanking
             // Agrega el servicio de Razor Pages
             services.AddRazorPages();
 
+            //Agrega el servicio de automapper
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             // Agrega el servicio de controladores y configura las opciones de serialización JSON
             services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
 
