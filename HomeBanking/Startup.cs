@@ -49,6 +49,12 @@ namespace HomeBanking
             // Agrega un servicio de repositorio para operaciones relacionadas con transacciones
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
+            // Agrega un servicio de repositorio para operaciones relacionadas con préstamos
+            services.AddScoped<ILoanRepository, LoanRepository>();
+
+            // Agrega un servicio de repositorio para operaciones relacionadas con relaciones entre clientes y préstamos
+            services.AddScoped<IClientLoanRepository, ClientLoanRepository>();
+
 
             services.AddScoped<AccountsController>();
             services.AddScoped<CardsController>();

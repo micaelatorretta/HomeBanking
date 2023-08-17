@@ -37,7 +37,7 @@ namespace HomeBanking.Controllers
 
                 Client client = _clientRepository.FindByEmail(email);
 
-                if (client == null)
+                if (client is null)
                 {
                     return Forbid("No existe el cliente");
                 }

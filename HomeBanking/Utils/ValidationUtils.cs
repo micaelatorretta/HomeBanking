@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using HomeBanking.Models;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace HomeBanking.Utils
 {
@@ -32,5 +34,8 @@ namespace HomeBanking.Utils
                 return false;
             }
         }
+
+       
+
     }
 }

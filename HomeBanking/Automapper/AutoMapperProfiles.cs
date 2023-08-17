@@ -8,8 +8,8 @@ namespace HomeBanking.Automapper
     {
         public AutoMapperProfiles()
         {
-            CreateMap<Client, ClientDTO>()
-                .ReverseMap();
+            CreateMap<Client, ClientDTO>().ForMember(dest => dest.Credits, opt => opt.MapFrom(src => src.ClientLoans)).ReverseMap();
+    
 
 
             CreateMap<Account, AccountDTO>()
@@ -23,6 +23,11 @@ namespace HomeBanking.Automapper
 
             CreateMap<Card, CardDTO>()
                 .ReverseMap();
+
+            CreateMap<Loan, LoanDTO>().ReverseMap();
+
+            CreateMap<ClientLoan, ClientLoanDTO>();
+
 
         }
 

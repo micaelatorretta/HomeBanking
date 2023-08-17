@@ -2,7 +2,7 @@
 {
     public enum LoanType
     {
-        HIPOTECARIO = 0,
+        HIPOTECARIO=0,
         PERSONAL,
         AUTOMOTRIZ
     }

@@ -2,6 +2,8 @@ var app = new Vue({
     el:"#app",
     data:{
         clientInfo: {},
+        accounts: [],
+        credits: [],
         //error: null
         errorToats: null,
         errorMsg: null,
@@ -13,12 +15,17 @@ var app = new Vue({
             .then(function (response) {
                 //get client ifo
                 app.clientInfo = response.data;
+                console.log('data: ',response.data)
+                app.accounts = response.data.accounts.$values;
+                app.credits = response.data.credits.$values;
+                console.log('accounts: ',app.accounts)
+                console.log('credits: ',app.credits)
             })
             .catch(function (error) {
                 // handle error
                 //app.error = error;
                 this.errorMsg = "Error getting data";
-                this.errorToats.show();
+                console.log('Error: ',error)
             })
         },
         formatDate: function(date){

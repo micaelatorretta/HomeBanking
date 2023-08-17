@@ -8,6 +8,7 @@ using System.Linq;
 using HomeBanking.Models.Enums;
 using AutoMapper;
 using HomeBanking.Utils;
+using HomeBanking.Repositories;
 
 namespace HomeBanking.Controllers
 {
@@ -19,18 +20,21 @@ namespace HomeBanking.Controllers
 
     {
         private readonly IMapper _mapper;
+        
         private IClientRepository _clientRepository;
-        // private IAccountRepository _accountRepository;
+        
+        private IAccountRepository _accountRepository;
+        private ILoanRepository _loanRepository;
         private AccountsController _accountsController;
         private CardsController _cardsController;
-        private IAccountRepository _accountRepository;
-        public ClientsController(IMapper mapper, IClientRepository clientRepository, AccountsController accountsController, CardsController cardsController, IAccountRepository accountRepository)
+        public ClientsController(IMapper mapper, IClientRepository clientRepository, AccountsController accountsController, CardsController cardsController, IAccountRepository accountRepository, ILoanRepository loanRepository)
 
         {
             _clientRepository = clientRepository;
             _accountsController = accountsController;
             _cardsController = cardsController;
             _accountRepository = accountRepository;
+            _loanRepository=loanRepository;
             _mapper = mapper;
         }
 
@@ -134,7 +138,6 @@ namespace HomeBanking.Controllers
 
 
         [HttpGet("{id}")]
-
         public IActionResult Get(long id)
 
         {
@@ -404,6 +407,38 @@ namespace HomeBanking.Controllers
                 var accountsDTO = _mapper.Map<List<AccountDTO>>(accounts);
 
                 return Ok(accountsDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+
+        }
+
+        [HttpGet("current/loans")] 
+        public IActionResult GetLoans()
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+
+                if (email == string.Empty)
+                {
+                    return Unauthorized("Acceso no autorizado");
+                }
+
+                Client client = _clientRepository.FindByEmail(email);
+
+                if (client == null)
+                {
+                    return Unauthorized("Acceso no autorizado");
+                }
+
+                var loans = _loanRepository.GetLoans();
+
+                var loansDTO = _mapper.Map<List<LoanDTO>>(loans);
+
+                return Ok(loansDTO);
             }
             catch (Exception ex)
             {
