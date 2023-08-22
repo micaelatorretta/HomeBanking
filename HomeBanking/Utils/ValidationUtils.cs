@@ -8,7 +8,7 @@ namespace HomeBanking.Utils
     {
         public static bool IsNameValid(string name)
         {
-            return Regex.IsMatch(name, @"^[a-zA-Z]+$") && name.Length >= 3;
+            return Regex.IsMatch(name, @"^[a-zA-Z\s]+$") && name.Length >= 3;
         }
 
         public static bool IsPasswordValid(string password)
