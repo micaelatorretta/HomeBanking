@@ -15,12 +15,8 @@ namespace HomeBanking.Controllers
         private IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
 
-
-
         public AccountsController(IAccountRepository accountRepository, IMapper mapper)
-
         {
-
             _accountRepository = accountRepository;
             _mapper = mapper;
         }
@@ -28,71 +24,44 @@ namespace HomeBanking.Controllers
 
 
         [HttpGet]
-
         public IActionResult Get()
-
         {
-
             try
-
             {
-
                 var accounts = _accountRepository.GetAllAccounts();
 
                 var accountsDTO = _mapper.Map<List<AccountDTO>>(accounts);
 
                 return Ok(accountsDTO);
-
             }
-
             catch (Exception ex)
-
             {
-
                 return StatusCode(500, ex.Message);
-
             }
-
         }
 
 
 
         [HttpGet("{id}")]
-
         public IActionResult Get(long id)
-
         {
-
             try
-
             {
-
                 var account = _accountRepository.FindById(id);
 
                 if (account == null)
-
                 {
-
                     return NotFound(); //404
-
                 }
-
-
 
                 var accountDTO = _mapper.Map<AccountDTO>(account);
 
                 return Ok(accountDTO);
-
             }
-
             catch (Exception ex)
-
             {
-
                 return StatusCode(500, ex.Message);
-
             }
-
         }
         
         [HttpPost]

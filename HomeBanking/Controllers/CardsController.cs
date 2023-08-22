@@ -47,12 +47,9 @@ namespace HomeBanking.Controllers
             {
                 var card = _cardRepository.FindById(id);
 
-                if (card == null)
-
+                if (card is null)
                 {
-
                     return NotFound(); //404
-
                 }
                 var newCardDTO = _mapper.Map<CardDTO>(card);
 

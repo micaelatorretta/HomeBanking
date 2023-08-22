@@ -3,11 +3,11 @@ using HomeBanking.DTOs;
 using HomeBanking.Models;
 using HomeBanking.Models.Enums;
 using HomeBanking.Repositories.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Security.Principal;
+
 
 namespace HomeBanking.Controllers
 {
@@ -76,7 +76,7 @@ namespace HomeBanking.Controllers
 
                 if (client is null)
                 {
-                    return Unauthorized("Acceso no autorizado");
+                    return Unauthorized("No existe el cliente");
                 }
 
                 if (!PerformValidations(loanApplicationDTO))
@@ -95,16 +95,9 @@ namespace HomeBanking.Controllers
 
                 _clientLoanRepository.Save(clientLoan);
 
-                string type = _loanRepository.FindById(loanApplicationDTO.LoanId).Name;
-                ClientLoanDTO clientLoanDTO = new ClientLoanDTO
-                {
-                    LoanId = loanApplicationDTO.LoanId,
-                    ClientId = client.Id,
-                    Name = type,
-                    Amount = loanApplicationDTO.Amount + loanApplicationDTO.Amount * 0.2,
-                    Payments = loanApplicationDTO.Payments,
-                };
+                clientLoan = _clientLoanRepository.FindById(clientLoan.ClientId, clientLoan.LoanId);
 
+                var clientLoanDTO = _mapper.Map<ClientLoanDTO>(clientLoan);
 
                 Account account = _accountRepository.FindByNumber(loanApplicationDTO.ToAccountNumber);
 
@@ -112,14 +105,17 @@ namespace HomeBanking.Controllers
                 {
                     Type = TransactionType.CREDIT.ToString(),
                     Amount = loanApplicationDTO.Amount,
-                    Description = type,
+                    Description = clientLoan.Loan.Name + " loan approved",
                     AccountId = account.Id,
                     Date = DateTime.Now,
 
                 };
 
                 _transactionRepository.Save(transac);
+                account.Balance += loanApplicationDTO.Amount;
 
+                //actualizamos la cuenta de destino
+                _accountRepository.Save(account);
                 var newTransacDTO = _mapper.Map<TransactionDTO>(transac);
 
                 return Created("", newTransacDTO);
@@ -137,38 +133,39 @@ namespace HomeBanking.Controllers
             if (existingLoan is null)
             {
                 ModelState.AddModelError("LoanId", "El préstamo especificado no existe.");
-                return false;
             }
-
-            double maxAmount = _loanRepository.GetMaxAmmountById(loanApplicationDTO.LoanId);
-
-            if (loanApplicationDTO.Amount <= 0 || loanApplicationDTO.Amount > maxAmount)
+            else
             {
-                ModelState.AddModelError("Amount", "El monto del préstamo está fuera del rango permitido");
-                return false;
-            }
+                double maxAmount = _loanRepository.GetMaxAmmountById(loanApplicationDTO.LoanId);
 
-            if (!_loanRepository.IsPaymentValid(loanApplicationDTO.LoanId, loanApplicationDTO.Payments))
-            {
-                ModelState.AddModelError("Payment", "El intervalo de pago no es válido para este préstamo.");
-                return false;
+                if (loanApplicationDTO.Amount <= 0 || loanApplicationDTO.Amount > maxAmount)
+                {
+                    ModelState.AddModelError("Amount", "El monto del préstamo está fuera del rango permitido");
+                }
+
+                if (!_loanRepository.IsPaymentValid(loanApplicationDTO.LoanId, loanApplicationDTO.Payments))
+                {
+                    ModelState.AddModelError("Payment", "El intervalo de pago no es válido para este préstamo.");
+                }
             }
 
             var account = _accountRepository.FindByNumber(loanApplicationDTO.ToAccountNumber);
             if (account is null)
             {
                 ModelState.AddModelError("ToAccountNumber", "La cuenta especificada no existe.");
-                return false;
             }
-
-            var client = _clientRepository.FindByEmail(User.FindFirst("Client").Value);
-            if (account.ClientId != client.Id)
+            else 
             {
-                ModelState.AddModelError("ToAccountNumber", "La cuenta especificada no pertenece al mismo usuario.");
-                return false;
+                var client = _clientRepository.FindByEmail(User.FindFirst("Client").Value);
+                if (account.ClientId != client.Id)
+                {
+                    ModelState.AddModelError("ToAccountNumber", "La cuenta especificada no pertenece al mismo usuario.");
+                }
             }
 
-            return true;
+           
+
+            return ModelState.IsValid;
         }
 
 

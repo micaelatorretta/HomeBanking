@@ -43,133 +43,40 @@ namespace HomeBanking.Controllers
         [HttpGet]
 
         public IActionResult Get()
-
         {
-
             try
-
             {
-
                 var clients = _clientRepository.GetAllClients();
-
-
-
-                var clientsDTO = _mapper.Map<List<ClientDTO>>(clients);/* new List<ClientDTO>();*/
-
-
-
-                //foreach (Client client in clients)
-
-                //{
-
-                //    var newClientDTO = new ClientDTO
-
-                //    {
-
-                //        Id = client.Id,
-
-                //        Email = client.Email,
-
-                //        FirstName = client.FirstName,
-
-                //        LastName = client.LastName,
-
-                //        Accounts = client.Accounts.Select(ac => new AccountDTO
-
-                //        {
-
-                //            Id = ac.Id,
-
-                //            Balance = ac.Balance,
-
-                //            CreationDate = ac.CreationDate,
-
-                //            Number = ac.Number
-
-                //        }).ToList(),
-                //        Credits = client.ClientLoans.Select(cl => new ClientLoanDTO
-                //        {
-                //            Id = cl.Id,
-                //            LoanId = cl.LoanId,
-                //            Name = cl.Loan.Name,
-                //            Amount = cl.Amount,
-                //            Payments = int.Parse(cl.Payments)
-                //        }).ToList(),
-                //        Cards = client.Cards.Select(c => new CardDTO
-                //        {
-                //            Id = c.Id,
-                //            CardHolder = c.CardHolder,
-                //            Color = c.Color,
-                //            Cvv = c.Cvv,
-                //            FromDate = c.FromDate,
-                //            Number = c.Number,
-                //            ThruDate = c.ThruDate,
-                //            Type = c.Type
-                //        }).ToList()
-
-
-
-                //    };
-
-
-                
-                //    clientsDTO.Add(newClientDTO);
-
-                //}
-
-
-
-
+                var clientsDTO = _mapper.Map<List<ClientDTO>>(clients);
 
                 return Ok(clientsDTO);
-
             }
-
             catch (Exception ex)
-
             {
-
                 return StatusCode(500, ex.Message);
-
             }
-
         }
-
-
 
         [HttpGet("{id}")]
         public IActionResult Get(long id)
-
         {
-
             try
-
             {
-
                 var client = _clientRepository.FindById(id);
 
                 if (client == null)
-
                 {
-
                     return NotFound(); //404
-
                 }
 
                 ClientDTO clientDTO=_mapper.Map<ClientDTO>(client);
 
                 return Ok(clientDTO);
-
             }
-
             catch (Exception ex)
-
             {
-
                 return StatusCode(500, ex.Message);
-
             }
-
         }
 
         [HttpGet("current")]
@@ -178,16 +85,17 @@ namespace HomeBanking.Controllers
             try
             {
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                if (email == string.Empty)
+
+                if (string.IsNullOrEmpty(email))
                 {
-                    return Unauthorized();
+                    return Unauthorized("Acceso no autorizado");
                 }
 
                 Client client = _clientRepository.FindByEmail(email);
 
-                if (client == null)
+                if (client is null)
                 {
-                    return Unauthorized();
+                    return Unauthorized("No existe el cliente");
                 }
 
                 ClientDTO clientDTO = _mapper.Map<ClientDTO>(client);
@@ -296,16 +204,16 @@ namespace HomeBanking.Controllers
             {
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
 
-                if (email == string.Empty)
+                if (string.IsNullOrEmpty(email))
                 {
                     return Unauthorized("Acceso no autorizado");
                 }
 
                 Client client = _clientRepository.FindByEmail(email);
 
-                if (client == null)
+                if (client is null)
                 {
-                    return Unauthorized("Acceso no autorizado");
+                    return Unauthorized("No existe el cliente");
                 }
 
                 // Realizar validaciones en los datos de la tarjeta
@@ -389,16 +297,16 @@ namespace HomeBanking.Controllers
             {
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
 
-                if (email == string.Empty)
+                if (string.IsNullOrEmpty(email))
                 {
                     return Unauthorized("Acceso no autorizado");
                 }
 
                 Client client = _clientRepository.FindByEmail(email);
 
-                if (client == null)
+                if (client is null)
                 {
-                    return Unauthorized("Acceso no autorizado");
+                    return Unauthorized("No existe el cliente");
                 }
 
                 // Obtén las cuentas asociadas al cliente desde el repositorio de cuentas.
@@ -407,38 +315,6 @@ namespace HomeBanking.Controllers
                 var accountsDTO = _mapper.Map<List<AccountDTO>>(accounts);
 
                 return Ok(accountsDTO);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
-
-        }
-
-        [HttpGet("current/loans")] 
-        public IActionResult GetLoans()
-        {
-            try
-            {
-                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-
-                if (email == string.Empty)
-                {
-                    return Unauthorized("Acceso no autorizado");
-                }
-
-                Client client = _clientRepository.FindByEmail(email);
-
-                if (client == null)
-                {
-                    return Unauthorized("Acceso no autorizado");
-                }
-
-                var loans = _loanRepository.GetLoans();
-
-                var loansDTO = _mapper.Map<List<LoanDTO>>(loans);
-
-                return Ok(loansDTO);
             }
             catch (Exception ex)
             {
