@@ -8,21 +8,26 @@ using HomeBanking.Repositories.Interfaces;
 
 namespace HomeBanking.Repositories
 {
+    // Interfaz que define métodos de operaciones de acceso a datos genéricas
     public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
+        // Contexto de la base de datos
         protected HomeBankingContext RepositoryContext { get; set; }
 
+        // Constructor que inyecta el contexto de la base de datos
         public RepositoryBase(HomeBankingContext repositoryContext)
         {
             this.RepositoryContext = repositoryContext;
         }
 
+        //Retorna una colección IQueryable de objetos. No recibe ningún parámetro y devuelve todos los objetos sin filtro.
         public IQueryable<T> FindAll()
         {
-            //return this.RepositoryContext.Set<T>().AsNoTracking();
             return this.RepositoryContext.Set<T>().AsNoTrackingWithIdentityResolution();
         }
 
+        //Puede recibir un IQueryable con una condición de filtro.
+        //IIncludableQueryable para usar las relaciones
         public IQueryable<T> FindAll(Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null)
         {
             IQueryable<T> queryable = this.RepositoryContext.Set<T>();

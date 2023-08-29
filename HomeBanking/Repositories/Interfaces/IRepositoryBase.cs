@@ -5,6 +5,7 @@ using System;
 
 namespace HomeBanking.Repositories.Interfaces
 {
+    // Clase base abstracta que implementa la interfaz IRepositoryBase
     public interface IRepositoryBase<T>
     {
         IQueryable<T> FindAll();
